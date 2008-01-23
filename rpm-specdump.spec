@@ -13,7 +13,7 @@ Print RPM dump of specfile.
 
 %prep
 %setup -q -c -T
-cp %{SOURCE0} rpm-specdump.c
+ln -s %{SOURCE0} rpm-specdump.c
 
 cat <<'EOF' > Makefile
 rpm-specdump: rpm-specdump.o

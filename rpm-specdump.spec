@@ -17,7 +17,7 @@ ln -s %{SOURCE0} rpm-specdump.c
 
 cat <<'EOF' > Makefile
 rpm-specdump: rpm-specdump.o
-	%{__cc} -lrpm -lrpmbuild $< -o $@ %{rpmldflags}
+	%{__cc} %{rpmldflags} $< -o $@ -lrpm -lrpmbuild
 
 rpm-specdump.o: rpm-specdump.c
 	%{__cc} %{rpmcflags} -Wall -W -I/usr/include/rpm -Wall -c $< -o $@
@@ -36,4 +36,4 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/*
+%attr(755,root,root) %{_bindir}/rpm-specdump

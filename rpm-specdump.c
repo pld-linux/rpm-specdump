@@ -286,9 +286,11 @@ Spec s;
 	Header h = s->sourceHeader;
 	const char *name, *version, *release;
 
-	// seems needed call
-	// TODO: check why %dump doesn't need sources to exist and behave same here.
+#if RPM_VERSION_CODE >= RPM_VERSION(4,4,9)
 	initSourceHeader(s, NULL);
+#else
+	initSourceHeader(s);
+#endif
 
 	if (
 		headerGetEntryMinMemory(h, RPMTAG_NAME, NULL, (void *)&name, NULL) == 0 ||

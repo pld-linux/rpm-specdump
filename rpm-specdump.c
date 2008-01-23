@@ -2,19 +2,27 @@
  * $Id$
  *
  * Prints out following information in same format as %dump for builder:
- *
- *  	$2 ~ /^PACKAGE_/ {print}
- *  	$2 ~ /^SOURCEURL/ {print}
- *  	$2 ~ /^PATCHURL/  {print}
- *  	$2 ~ /^nosource/ {print}
- *  	$2 ~ /^PACKAGE_/ {print}
+ * $ rpmbuild --nodigest --nosignature --nobuild -bp --define 'prep %{echo:dummy: PACKAGE_NAME %{name} }%dump' qemu.spec 2>&1 | awk '$2 ~ /^SOURCEURL/ {print} $2 ~ /^PATCHURL/  {print} $2 ~ /^nosource/ {print} $2 ~ /^PACKAGE_/ {print}'
+ * dummy: PACKAGE_NAME qemu ========================
+ * -2: PACKAGE_RELEASE    60@2.6.16.59_2
+ * -1: PACKAGE_VERSION    1.3.0pre11
+ * -3: PATCHURL0  qemu-nostatic.patch
+ * -3: PATCHURL1  qemu-cc.patch
+ * -3: PATCHURL11 qemu-0.7.2-gcc4-opts.patch
+ * -3: PATCHURL13 qemu-dosguest.patch
+ * -3: PATCHURL3  qemu-dot.patch
+ * -3: PATCHURL4  qemu-gcc4_x86.patch
+ * -3: PATCHURL5  qemu-gcc4_ppc.patch
+ * -3: PATCHURL6  qemu-nosdlgui.patch
+ * -3: PATCHURL8  qemu-kde_virtual_workspaces_hack.patch
+ * -3: PATCHURL9  qemu-0.8.0-gcc4-hacks.patch
+ * -3: SOURCEURL0 http://fabrice.bellard.free.fr/qemu/qemu-0.9.0.tar.gz
+ * -3: SOURCEURL1 http://fabrice.bellard.free.fr/qemu/kqemu-1.3.0pre11.tar.gz
  *
  *  $ rpm-specdump qemu.spec
  *  h PACKAGE_NAME qemu
  *  h PACKAGE_VERSION 0.9.0
  *  h PACKAGE_RELEASE 60k
- *  source: /home/glen/rpm/pld/SOURCES
- *  patch: /home/glen/rpm/pld/SOURCES
  *  s PATCH13 /home/glen/rpm/pld/SOURCES/qemu-dosguest.patch
  *  s PATCH11 /home/glen/rpm/pld/SOURCES/qemu-0.7.2-gcc4-opts.patch
  *  s PATCH9 /home/glen/rpm/pld/SOURCES/qemu-0.8.0-gcc4-hacks.patch
@@ -30,10 +38,12 @@
  *  s SOURCE0 /home/glen/rpm/pld/SOURCES/qemu-0.9.0.tar.gz
  *  s SOURCEURL0 http://fabrice.bellard.free.fr/qemu/qemu-0.9.0.tar.gz
  *
+ * Compile with:
+ * gcc -lrpm -I/usr/include/rpm -lrpmbuild rpm-specdump.c -o rpm-specdump
+ *
  * Version 0.1, 2008-01-23
  * - initial version, based on getdeps.c
  */
-
 
 #define _GNU_SOURCE
 
@@ -241,9 +251,13 @@ Spec s;
 	}
   
 	s = rpmtsSpec(ts);
+
+	// here starts the code for builder
 	Header h = s->sourceHeader;
 	const char *name, *version, *release;
 
+	// seems needed call
+	// TODO: check why %dump doesn't need sources to exist and behave same here.
 	initSourceHeader(s, NULL);
 
 	if (

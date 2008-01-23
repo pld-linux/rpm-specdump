@@ -91,6 +91,15 @@
 #define ARG_UID		1030
 #define ARG_GID		1031
 
+// macros from kernel
+#define RPM_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+#define	RPM_VERSION_CODE RPM_VERSION(RPM_FORMAT_VERSION, RPM_MAJOR_VERSION, RPM_MINOR_VERSION)
+
+// RPM 4.4.2
+#ifndef RPMFILE_SOURCE
+#	define RPMFILE_SOURCE RPMBUILD_ISSOURCE
+#endif
+
 static struct option const
 CMDLINE_OPTIONS[] = {
   { "help",     no_argument,  0, 'h' },
@@ -263,7 +272,11 @@ Spec s;
 	setMacros(args.macros.values, args.macros.cnt);
 
 	rpmts ts = rpmtsCreate();
-	if (parseSpec(ts, args.specfile, NULL, 0, NULL, NULL, 0, 1, 1) != 0) {
+#if RPM_VERSION_CODE >= RPM_VERSION(4,4,9)
+	if (parseSpec(ts, args.specfile, NULL, 0, NULL, NULL, 1, 1, 0) != 0) {
+#else
+	if (parseSpec(ts, args.specfile, NULL, NULL, 0, NULL, NULL, 1, 1) != 0) {
+#endif
 		return EXIT_FAILURE;
 	}
   

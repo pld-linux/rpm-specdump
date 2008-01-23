@@ -40,14 +40,22 @@
  *
  * And with NoSource: 1, NoSource: 2
  *
- *  $ ../test/rpm-specdump ./ZendDebugger.spec
+ *  $ rpmbuild --nodigest --nosignature --nobuild -bp --define 'prep %{echo:dummy: PACKAGE_NAME %{name} }%dump' ZendDebugger.spec 2>&1 | awk '$2 ~ /^SOURCEURL/ {print} $2 ~ /^PATCHURL/  {print} $2 ~ /^nosource/ {print} $2 ~ /^PACKAGE_/ {print}'
+ *  dummy: PACKAGE_NAME ZendDebugger ========================
+ *   -2: PACKAGE_RELEASE    0.4
+ *   -1: PACKAGE_VERSION    5.2.10
+ *   -3: SOURCEURL0 http://downloads.zend.com/pdt/server-debugger/ZendDebugger-5.2.10-linux-glibc21-i386.tar.gz
+ *   -3: SOURCEURL1 http://downloads.zend.com/pdt/server-debugger/ZendDebugger-5.2.10-linux-glibc23-x86_64.tar.gz
+ *   -3: nosource   1
+ *
+ *  $ rpm-specdump ZendDebugger.spec
  *  h PACKAGE_NAME ZendDebugger
  *  h PACKAGE_VERSION 5.2.10
  *  h PACKAGE_RELEASE 0.4
- *  s SOURCE1 /home/glen/rpm/pld/SOURCES!/ZendDebugger-5.2.10-linux-glibc23-x86_64.tar.gz
+ *  s SOURCE1 /home/glen/rpm/pld/SOURCES/ZendDebugger-5.2.10-linux-glibc23-x86_64.tar.gz
  *  s SOURCEURL1 http://downloads.zend.com/pdt/server-debugger/ZendDebugger-5.2.10-linux-glibc23-x86_64.tar.gz
  *  s nosource 1
- *  s SOURCE0 /home/glen/rpm/pld/SOURCES!/ZendDebugger-5.2.10-linux-glibc21-i386.tar.gz
+ *  s SOURCE0 /home/glen/rpm/pld/SOURCES/ZendDebugger-5.2.10-linux-glibc21-i386.tar.gz
  *  s SOURCEURL0 http://downloads.zend.com/pdt/server-debugger/ZendDebugger-5.2.10-linux-glibc21-i386.tar.gz
  *  s nosource 0
  *

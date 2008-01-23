@@ -38,6 +38,19 @@
  *  s SOURCE0 /home/glen/rpm/pld/SOURCES/qemu-0.9.0.tar.gz
  *  s SOURCEURL0 http://fabrice.bellard.free.fr/qemu/qemu-0.9.0.tar.gz
  *
+ * And with NoSource: 1, NoSource: 2
+ *
+ *  $ ../test/rpm-specdump ./ZendDebugger.spec
+ *  h PACKAGE_NAME ZendDebugger
+ *  h PACKAGE_VERSION 5.2.10
+ *  h PACKAGE_RELEASE 0.4
+ *  s SOURCE1 /home/glen/rpm/pld/SOURCES!/ZendDebugger-5.2.10-linux-glibc23-x86_64.tar.gz
+ *  s SOURCEURL1 http://downloads.zend.com/pdt/server-debugger/ZendDebugger-5.2.10-linux-glibc23-x86_64.tar.gz
+ *  s nosource 1
+ *  s SOURCE0 /home/glen/rpm/pld/SOURCES!/ZendDebugger-5.2.10-linux-glibc21-i386.tar.gz
+ *  s SOURCEURL0 http://downloads.zend.com/pdt/server-debugger/ZendDebugger-5.2.10-linux-glibc21-i386.tar.gz
+ *  s nosource 0
+ *
  * Compile with:
  * gcc -lrpm -I/usr/include/rpm -lrpmbuild rpm-specdump.c -o rpm-specdump
  *
@@ -265,16 +278,15 @@ Spec s;
 		headerGetEntryMinMemory(h, RPMTAG_VERSION, NULL, (void *)&version, NULL) == 0 ||
 		headerGetEntryMinMemory(h, RPMTAG_RELEASE, NULL, (void *)&release, NULL) == 0
 		) {
-		printf(stderr, "NVR query failed\n");
+		fprintf(stderr, "NVR query failed\n");
 		return EXIT_FAILURE;
 	}
 
 	printf("h PACKAGE_NAME %s\n", name);
 	printf("h PACKAGE_VERSION %s\n", version);
 	printf("h PACKAGE_RELEASE %s\n", release);
-	// XXX kill the ! hack
-	const char *sourcedir = rpmExpand("%{_sourcedir}!"); *(strchr(sourcedir, '!')) = '\0';
-	const char *patchdir = rpmExpand("%{_patchdir}!"); *(strchr(patchdir, '!')) = '\0';
+	const char *sourcedir = rpmExpand("%{_sourcedir}", NULL);
+	const char *patchdir = rpmExpand("%{_patchdir}", NULL);
 
 	struct Source *ps = s->sources;
 	while (ps) {

@@ -23,19 +23,17 @@
  *  h PACKAGE_NAME qemu
  *  h PACKAGE_VERSION 0.9.0
  *  h PACKAGE_RELEASE 60k
- *  s PATCH13 /home/glen/rpm/pld/SOURCES/qemu-dosguest.patch
- *  s PATCH11 /home/glen/rpm/pld/SOURCES/qemu-0.7.2-gcc4-opts.patch
- *  s PATCH9 /home/glen/rpm/pld/SOURCES/qemu-0.8.0-gcc4-hacks.patch
- *  s PATCH8 /home/glen/rpm/pld/SOURCES/qemu-kde_virtual_workspaces_hack.patch
- *  s PATCH6 /home/glen/rpm/pld/SOURCES/qemu-nosdlgui.patch
- *  s PATCH5 /home/glen/rpm/pld/SOURCES/qemu-gcc4_ppc.patch
- *  s PATCH4 /home/glen/rpm/pld/SOURCES/qemu-gcc4_x86.patch
- *  s PATCH3 /home/glen/rpm/pld/SOURCES/qemu-dot.patch
- *  s PATCH1 /home/glen/rpm/pld/SOURCES/qemu-cc.patch
- *  s PATCH0 /home/glen/rpm/pld/SOURCES/qemu-nostatic.patch
- *  s SOURCE1 /home/glen/rpm/pld/SOURCES/kqemu-1.3.0pre11.tar.gz
+ *  s PATCHURL13 qemu-dosguest.patch
+ *  s PATCHURL11 qemu-0.7.2-gcc4-opts.patch
+ *  s PATCHURL9 qemu-0.8.0-gcc4-hacks.patch
+ *  s PATCHURL8 qemu-kde_virtual_workspaces_hack.patch
+ *  s PATCHURL6 qemu-nosdlgui.patch
+ *  s PATCHURL5 qemu-gcc4_ppc.patch
+ *  s PATCHURL4 qemu-gcc4_x86.patch
+ *  s PATCHURL3 qemu-dot.patch
+ *  s PATCHURL1 qemu-cc.patch
+ *  s PATCHURL0 qemu-nostatic.patch
  *  s SOURCEURL1 http://fabrice.bellard.free.fr/qemu/kqemu-1.3.0pre11.tar.gz
- *  s SOURCE0 /home/glen/rpm/pld/SOURCES/qemu-0.9.0.tar.gz
  *  s SOURCEURL0 http://fabrice.bellard.free.fr/qemu/qemu-0.9.0.tar.gz
  *
  * And with NoSource: 1, NoSource: 2
@@ -52,10 +50,8 @@
  *  h PACKAGE_NAME ZendDebugger
  *  h PACKAGE_VERSION 5.2.10
  *  h PACKAGE_RELEASE 0.4
- *  s SOURCE1 /home/glen/rpm/pld/SOURCES/ZendDebugger-5.2.10-linux-glibc23-x86_64.tar.gz
  *  s SOURCEURL1 http://downloads.zend.com/pdt/server-debugger/ZendDebugger-5.2.10-linux-glibc23-x86_64.tar.gz
  *  s nosource 1
- *  s SOURCE0 /home/glen/rpm/pld/SOURCES/ZendDebugger-5.2.10-linux-glibc21-i386.tar.gz
  *  s SOURCEURL0 http://downloads.zend.com/pdt/server-debugger/ZendDebugger-5.2.10-linux-glibc21-i386.tar.gz
  *  s nosource 0
  *
@@ -293,17 +289,11 @@ Spec s;
 	printf("h PACKAGE_NAME %s\n", name);
 	printf("h PACKAGE_VERSION %s\n", version);
 	printf("h PACKAGE_RELEASE %s\n", release);
-	const char *sourcedir = rpmExpand("%{_sourcedir}", NULL);
-	const char *patchdir = rpmExpand("%{_patchdir}", NULL);
 
 	struct Source *ps = s->sources;
 	while (ps) {
 		const char *type = (ps->flags & RPMFILE_SOURCE) ? "SOURCE" : "PATCH";
-		const char *sdir = (ps->flags & RPMFILE_SOURCE) ? sourcedir : patchdir;
-		printf("s %s%d %s/%s\n", type, ps->num, sdir, ps->source);
-		if (ps->source != ps->fullSource) {
-			printf("s %sURL%d %s\n", type, ps->num, ps->fullSource);
-		}
+		printf("s %sURL%d %s\n", type, ps->num, ps->fullSource);
 		if (ps->flags & RPMFILE_GHOST) {
 			printf("s nosource %d\n", ps->num);
 		}

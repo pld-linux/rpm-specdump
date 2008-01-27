@@ -1,11 +1,12 @@
 Summary:	Print RPM dump of specfile
 Name:		rpm-specdump
 Version:	0.1
-Release:	2
+Release:	3
 License:	GPL
 Group:		Applications/System
-Source0:	rpm-specdump.c
+Source0:	%{name}.c
 BuildRequires:	rpm-devel
+%requires_eq	rpm-lib
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description

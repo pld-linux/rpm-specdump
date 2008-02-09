@@ -1,7 +1,7 @@
 Summary:	Print RPM dump of specfile
 Name:		rpm-specdump
 Version:	0.2
-Release:	1
+Release:	2
 License:	GPL
 Group:		Applications/System
 Source0:	%{name}.c

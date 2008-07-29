@@ -64,6 +64,10 @@
 
 #define _GNU_SOURCE
 
+// macros from kernel
+#define RPM_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+#define	RPM_VERSION_CODE RPM_VERSION(RPM_FORMAT_VERSION, RPM_MAJOR_VERSION, RPM_MINOR_VERSION)
+
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -79,7 +83,9 @@
 
 #include <rpmbuild.h>
 #include <rpmlib.h>
+#if RPM_VERSION_CODE < RPM_VERSION(5,0,0)
 #include <header.h>
+#endif
 #include <rpmts.h>
 
 #define ARG_WITH	1024
@@ -90,10 +96,6 @@
 #define ARG_CHROOT	1029
 #define ARG_UID		1030
 #define ARG_GID		1031
-
-// macros from kernel
-#define RPM_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
-#define	RPM_VERSION_CODE RPM_VERSION(RPM_FORMAT_VERSION, RPM_MAJOR_VERSION, RPM_MINOR_VERSION)
 
 // RPM 4.4.2
 #if RPM_VERSION_CODE < RPM_VERSION(4,4,9)
@@ -292,6 +294,7 @@ Spec s;
 #endif
 	Header h = s->sourceHeader;
 
+#if RPM_VERSION_CODE < RPM_VERSION(5,0,0)
 	if (
 		headerGetEntryMinMemory(h, RPMTAG_NAME, NULL, (void *)&name, NULL) == 0 ||
 		headerGetEntryMinMemory(h, RPMTAG_VERSION, NULL, (void *)&version, NULL) == 0 ||
@@ -300,6 +303,40 @@ Spec s;
 		fprintf(stderr, "NVR query failed\n");
 		return EXIT_FAILURE;
 	}
+
+#else
+	{
+		HE_t he;
+		int rc;
+	       
+		he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he));
+		he->tag = (rpmTag) RPMTAG_NAME;
+		rc = headerGet(h, he, 0);
+		if (!rc) {
+			fprintf(stderr, "Name (NVR) query failed\n");
+			return EXIT_FAILURE;
+		}
+		name = (char *)he->p.ptr;
+
+		he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he));
+		he->tag = (rpmTag) RPMTAG_VERSION;
+		rc = headerGet(h, he, 0);
+		if (!rc) {
+			fprintf(stderr, "Version (NVR) query failed\n");
+			return EXIT_FAILURE;
+		}
+		version = (char *)he->p.ptr;
+
+		he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he));
+		he->tag = (rpmTag) RPMTAG_RELEASE;
+		rc = headerGet(h, he, 0);
+		if (!rc) {
+			fprintf(stderr, "Release (NVR) query failed\n");
+			return EXIT_FAILURE;
+		}
+		release = (char *)he->p.ptr;
+	}
+#endif
 
 	printf("h PACKAGE_NAME %s\n", name);
 	printf("h PACKAGE_VERSION %s\n", version);

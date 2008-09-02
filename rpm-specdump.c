@@ -77,6 +77,7 @@
 #include <string.h>
 #include <assert.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <grp.h>
 #include <sys/time.h>
 #include <sys/types.h>

@@ -2,7 +2,7 @@ Summary:	Print RPM dump of specfile
 Summary(pl.UTF-8):	Narzędzie wypisujące RPM-owy zrzut pliku spec
 Name:		rpm-specdump
 Version:	0.3
-Release:	4
+Release:	5
 License:	GPL
 Group:		Applications/System
 Source0:	%{name}.c
@@ -22,7 +22,7 @@ ln -s %{SOURCE0} rpm-specdump.c
 
 cat <<'EOF' > Makefile
 rpm-specdump: rpm-specdump.o
-	%{__cc} %{rpmldflags} $< -o $@ -lrpm -lrpmbuild
+	%{__cc} %{rpmldflags} $< -o $@ -lrpm -lrpmdb -lrpmio -lrpmbuild
 
 rpm-specdump.o: rpm-specdump.c
 	%{__cc} %{rpmcflags} -Wall -W -I/usr/include/rpm -Wall -c $< -o $@

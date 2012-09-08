@@ -100,6 +100,7 @@
 #	define	RPM_VERSION_CODE RPM_VERSION(RPM_FORMAT_VERSION, RPM_MAJOR_VERSION, RPM_MINOR_VERSION)
 #endif
 
+#include <rpmio.h>
 #include <rpmbuild.h>
 #if RPM_VERSION_CODE < RPM_VERSION(5,4,0)
 #include <rpmlib.h>

@@ -64,10 +64,6 @@
 
 #define _GNU_SOURCE
 
-// macros from kernel
-#define RPM_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
-#define	RPM_VERSION_CODE RPM_VERSION(RPM_FORMAT_VERSION, RPM_MAJOR_VERSION, RPM_MINOR_VERSION)
-
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
@@ -82,8 +78,32 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
+// macros from kernel
+#define RPM_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+
+#if !defined(RPM_FORMAT_VERSION)
+#include <rpmversion.h>
+#if defined(RPMLIB_VERSION) && RPMLIB_VENDOR_EQ('R','P','M','5')
+#	if RPMLIB_VERSION >= RPMLIB_VERSION_ENCODE(5,4,r,0,0,_)
+#		define	RPM_VERSION_CODE RPM_VERSION(5, 4, 0)
+#	elif RPMLIB_VERSION >= RPMLIB_VERSION_ENCODE(5,3,r,0,0,_)
+#		define	RPM_VERSION_CODE RPM_VERSION(5, 3, 0)
+#	elif RPMLIB_VERSION >= RPMLIB_VERSION_ENCODE(5,2,r,0,0,_)
+#		define	RPM_VERSION_CODE RPM_VERSION(5, 2, 0)
+#	elif RPMLIB_VERSION >= RPMLIB_VERSION_ENCODE(5,1,r,0,0,_)
+#		define	RPM_VERSION_CODE RPM_VERSION(5, 1, 0)
+#	elif RPMLIB_VERSION >= RPMLIB_VERSION_ENCODE(5,0,r,0,0,_)
+#		define	RPM_VERSION_CODE RPM_VERSION(5, 0, 0)
+#	endif
+#endif
+#else
+#	define	RPM_VERSION_CODE RPM_VERSION(RPM_FORMAT_VERSION, RPM_MAJOR_VERSION, RPM_MINOR_VERSION)
+#endif
+
 #include <rpmbuild.h>
+#if RPM_VERSION_CODE < RPM_VERSION(5,4,0)
 #include <rpmlib.h>
+#endif
 #if RPM_VERSION_CODE < RPM_VERSION(5,0,0)
 #include <header.h>
 #endif
@@ -101,6 +121,10 @@
 // RPM 4.4.2
 #if RPM_VERSION_CODE < RPM_VERSION(4,4,9)
 #	define RPMFILE_SOURCE RPMBUILD_ISSOURCE
+#endif
+
+#if !defined(EXIT_FAILURE)
+#	define EXIT_FAILURE 1
 #endif
 
 static struct option const

@@ -2,12 +2,13 @@ Summary:	Print RPM dump of specfile
 Summary(pl.UTF-8):	Narzędzie wypisujące RPM-owy zrzut pliku spec
 Name:		rpm-specdump
 Version:	0.3
-Release:	7.5
+Release:	7.6
 License:	GPL
 Group:		Applications/System
 Source0:	%{name}.c
 BuildRequires:	rpm-devel
-%requires_eq	rpm-lib
+# commented out due to mixed env on builders
+#%requires_eq	rpm-lib
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description

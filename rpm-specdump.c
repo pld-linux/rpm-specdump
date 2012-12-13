@@ -285,6 +285,7 @@ int main(int argc, char *argv[])
 struct Arguments args = { 0,0,0,-1,-1, {0,0,0}, 0 };
 Spec s;
 
+	addDefine(&args, "patch %{nil}");
 	parseArgs(&args, argc, argv);
 
 	if ((args.chroot && chroot(args.chroot)==-1) ||

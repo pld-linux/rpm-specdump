@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Prints out following information in same format as %dump for builder:
  * $ rpmbuild --nodigest --nosignature --nobuild -bp --define 'prep %{echo:dummy: PACKAGE_NAME %{name} }%dump' qemu.spec 2>&1 | awk '$2 ~ /^SOURCEURL/ {print} $2 ~ /^PATCHURL/  {print} $2 ~ /^nosource/ {print} $2 ~ /^PACKAGE_/ {print}'
  * dummy: PACKAGE_NAME qemu ========================
@@ -312,7 +310,7 @@ Spec s;
 	s = rpmtsSpec(ts);
 
 	// here starts the code for builder
-	const char *name = NULL, *version = NULL, *release = NULL;
+	const char *name = NULL, *version = NULL, *release = NULL, *summary = NULL;
 
 #if RPM_VERSION_CODE >= RPM_VERSION(4,4,9)
 	initSourceHeader(s, NULL);
@@ -335,7 +333,7 @@ Spec s;
 	{
 		HE_t he;
 		int rc;
-	       
+
 		he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he));
 		he->tag = (rpmTag) RPMTAG_NAME;
 		rc = headerGet(h, he, 0);
@@ -362,12 +360,23 @@ Spec s;
 			return EXIT_FAILURE;
 		}
 		release = (char *)he->p.ptr;
+
+		he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he));
+		he->tag = (rpmTag) RPMTAG_SUMMARY;
+		rc = headerGet(h, he, 0);
+		if (!rc) {
+			fprintf(stderr, "Summary query failed\n");
+			return EXIT_FAILURE;
+		}
+		summary = (char *)he->p.ptr;
 	}
 #endif
 
 	printf("h PACKAGE_NAME %s\n", name);
 	printf("h PACKAGE_VERSION %s\n", version);
 	printf("h PACKAGE_RELEASE %s\n", release);
+
+	printf("h PACKAGE_SUMMARY %s\n", summary);
 
 	struct Source *ps = s->sources;
 	while (ps) {

@@ -285,6 +285,16 @@ struct Arguments args = { 0,0,0,-1,-1, {0,0,0}, 0 };
 Spec s;
 
 	addDefine(&args, "patch %{nil}");
+
+	// instead of requiring rpm-build, we include some "builtin" macros
+	addDefine(&args, "bcond_without() %{expand:%%{!?_without_%{1}:%%global with_%{1} 1}}");
+	addDefine(&args, "bcond_with() %{expand:%%{?_with_%{1}:%%global with_%{1} 1}}");
+	addDefine(&args, "with() %{expand:%%{?with_%{1}:1}%%{!?with_%{1}:0}}");
+	addDefine(&args, "without() %{expand:%%{?with_%{1}:0}%%{!?with_%{1}:1}}");
+
+	// include macros.perl, etc
+	addDefine(&args, "include() %{nil}");
+
 	parseArgs(&args, argc, argv);
 
 	if ((args.chroot && chroot(args.chroot)==-1) ||

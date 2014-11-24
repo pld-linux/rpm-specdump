@@ -16,6 +16,7 @@
  * -3: PATCHURL9  qemu-0.8.0-gcc4-hacks.patch
  * -3: SOURCEURL0 http://fabrice.bellard.free.fr/qemu/qemu-0.9.0.tar.gz
  * -3: SOURCEURL1 http://fabrice.bellard.free.fr/qemu/kqemu-1.3.0pre11.tar.gz
+ * -3: url http://rpm5.org/
  *
  *  $ rpm-specdump qemu.spec
  *  h PACKAGE_NAME qemu
@@ -310,7 +311,7 @@ Spec s;
 	s = rpmtsSpec(ts);
 
 	// here starts the code for builder
-	const char *name = NULL, *version = NULL, *release = NULL, *summary = NULL;
+	const char *name = NULL, *version = NULL, *release = NULL, *summary = NULL, *url = NULL;
 
 #if RPM_VERSION_CODE >= RPM_VERSION(4,4,9)
 	initSourceHeader(s, NULL);
@@ -369,6 +370,14 @@ Spec s;
 			return EXIT_FAILURE;
 		}
 		summary = (char *)he->p.ptr;
+
+		he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he));
+		he->tag = (rpmTag) RPMTAG_URL;
+		rc = headerGet(h, he, 0);
+		if (rc) {
+			// URL field is not required
+			url = (char *)he->p.ptr;
+		}
 	}
 #endif
 
@@ -377,6 +386,7 @@ Spec s;
 	printf("h PACKAGE_RELEASE %s\n", release);
 
 	printf("h PACKAGE_SUMMARY %s\n", summary);
+	printf("h url %s\n", url);
 
 	struct Source *ps = s->sources;
 	while (ps) {

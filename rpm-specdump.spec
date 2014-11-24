@@ -6,6 +6,7 @@ Release:	2
 License:	GPL
 Group:		Applications/System
 Source0:	%{name}.c
+Source1:	Makefile
 BuildRequires:	rpm-devel
 # commented out due to mixed env on builders
 #%requires_eq	rpm-lib
@@ -18,19 +19,15 @@ Print RPM dump of specfile.
 Narzędzie wypisujące RPM-owy zrzut (dump) pliku spec.
 
 %prep
-%setup -q -c -T
-ln -s %{SOURCE0} rpm-specdump.c
-
-cat <<'EOF' > Makefile
-rpm-specdump: rpm-specdump.o
-	%{__cc} %{rpmldflags} $< -o $@ -lrpm -lrpmdb -lrpmio -lrpmbuild
-
-rpm-specdump.o: rpm-specdump.c
-	%{__cc} %{rpmcflags} -Wall -W -I/usr/include/rpm -Wall -c $< -o $@
-EOF
+%setup -qcT
+ln -s %{SOURCE0} .
+ln -s %{SOURCE1} .
 
 %build
-%{__make}
+%{__make} \
+	CC="%{__cc}" \
+	LDFLAGS="%{rpmldflags}" \
+	CFLAGS="%{rpmcflags}"
 
 %install
 rm -rf $RPM_BUILD_ROOT

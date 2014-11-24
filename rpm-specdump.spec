@@ -32,7 +32,7 @@ ln -s %{SOURCE1} .
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_bindir}
-install %{name} $RPM_BUILD_ROOT%{_bindir}
+install -p %{name} $RPM_BUILD_ROOT%{_bindir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT

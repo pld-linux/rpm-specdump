@@ -288,11 +288,7 @@ Spec s;
 	setMacros(args.macros.values, args.macros.cnt);
 
 	rpmts ts = rpmtsCreate();
-#if RPM_VERSION_CODE >= RPM_VERSION(4,4,9)
 	if (parseSpec(ts, args.specfile, NULL, 0, NULL, NULL, 1, 1, 0) != 0) {
-#else
-	if (parseSpec(ts, args.specfile, NULL, NULL, 1, NULL, NULL, 1, 1) != 0) {
-#endif
 		return EXIT_FAILURE;
 	}
   
@@ -301,11 +297,7 @@ Spec s;
 	// here starts the code for builder
 	const char *name = NULL, *version = NULL, *release = NULL, *summary = NULL, *url = NULL;
 
-#if RPM_VERSION_CODE >= RPM_VERSION(4,4,9)
 	initSourceHeader(s, NULL);
-#else
-	initSourceHeader(s);
-#endif
 	Header h = s->sourceHeader;
 
 #if RPM_VERSION_CODE < RPM_VERSION(5,0,0)

@@ -80,24 +80,7 @@
 // macros from kernel
 #define RPM_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 
-#if !defined(RPM_FORMAT_VERSION)
-#include <rpmversion.h>
-#if defined(RPMLIB_VERSION) && RPMLIB_VENDOR_EQ('R','P','M','5')
-#	if RPMLIB_VERSION >= RPMLIB_VERSION_ENCODE(5,4,r,0,0,_)
-#		define	RPM_VERSION_CODE RPM_VERSION(5, 4, 0)
-#	elif RPMLIB_VERSION >= RPMLIB_VERSION_ENCODE(5,3,r,0,0,_)
-#		define	RPM_VERSION_CODE RPM_VERSION(5, 3, 0)
-#	elif RPMLIB_VERSION >= RPMLIB_VERSION_ENCODE(5,2,r,0,0,_)
-#		define	RPM_VERSION_CODE RPM_VERSION(5, 2, 0)
-#	elif RPMLIB_VERSION >= RPMLIB_VERSION_ENCODE(5,1,r,0,0,_)
-#		define	RPM_VERSION_CODE RPM_VERSION(5, 1, 0)
-#	elif RPMLIB_VERSION >= RPMLIB_VERSION_ENCODE(5,0,r,0,0,_)
-#		define	RPM_VERSION_CODE RPM_VERSION(5, 0, 0)
-#	endif
-#endif
-#else
-#	define	RPM_VERSION_CODE RPM_VERSION(RPM_FORMAT_VERSION, RPM_MAJOR_VERSION, RPM_MINOR_VERSION)
-#endif
+#define RPM_VERSION_CODE RPM_VERSION(RPM_FORMAT_VERSION, RPM_MAJOR_VERSION, RPM_MINOR_VERSION)
 
 #include <rpmio.h>
 #include <rpmbuild.h>
@@ -117,11 +100,6 @@
 #define ARG_CHROOT	1029
 #define ARG_UID		1030
 #define ARG_GID		1031
-
-// RPM 4.4.2
-#if RPM_VERSION_CODE < RPM_VERSION(4,4,9)
-#	define RPMFILE_SOURCE RPMBUILD_ISSOURCE
-#endif
 
 #if !defined(EXIT_FAILURE)
 #	define EXIT_FAILURE 1
@@ -243,7 +221,7 @@ parseArgs(struct Arguments *args, int argc, char *argv[])
     int		c = getopt_long(argc, argv, "", CMDLINE_OPTIONS, 0);
     if (c==-1) break;
     switch (c) {
-      case 'h'		:  showHelp(1, argv[0], 0);
+      case 'h'		:  showHelp(1, argv[0], 0); break;
       case ARG_TARGET	:  args->target = optarg; break;
       case ARG_RCFILE	:  args->rcfile = optarg; break;
       case ARG_CHROOT	:  args->chroot = optarg; break;

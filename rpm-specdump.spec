@@ -26,8 +26,8 @@ ln -s %{SOURCE1} .
 %build
 %{__make} \
 	CC="%{__cc}" \
-	LDFLAGS="%{rpmldflags}" \
-	CFLAGS="%{rpmcflags}"
+	RPMLDFLAGS="%{rpmldflags}" \
+	RPMCFLAGS="%{rpmcflags}"
 
 %install
 rm -rf $RPM_BUILD_ROOT

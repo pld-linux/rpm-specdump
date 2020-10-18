@@ -1,12 +1,11 @@
 CC := gcc
-CFLAGS :=
-LDFLAGS :=
-CPPFLAGS :=
-INCLUDES := -I/usr/include/rpm
-LIBS := -lrpm -lrpmdb -lrpmio -lrpmbuild
+CFLAGS := -Wall -Wno-unused-result $(RPMCFLAGS)
+LDFLAGS := $(RPMLDFLAGS)
+INCLUDES := `pkg-config --cflags rpm`
+LIBS := `pkg-config --libs rpm`
 
 rpm-specdump: rpm-specdump.o
 	$(CC) $(LDFLAGS) $< -o $@ $(LIBS)
 
 rpm-specdump.o: rpm-specdump.c
-	$(CC) $(CFLAGS) $(INCLUDES) -W -Wall -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@

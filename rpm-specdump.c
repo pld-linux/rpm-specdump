@@ -260,7 +260,11 @@ setMacros(char const * const *macros, size_t cnt)
 int main(int argc, char *argv[])
 {
 struct Arguments args = { 0,0,0,-1,-1, {0,0,0}, 0 };
+#if RPM_VERSION_CODE < RPM_VERSION(5,0,0)
+rpmSpec s;
+#else
 Spec s;
+#endif
 
 	addDefine(&args, "patch %{nil}");
 
@@ -287,79 +291,64 @@ Spec s;
 	rpmReadConfigFiles(args.rcfile, args.target);
 	setMacros(args.macros.values, args.macros.cnt);
 
+	// here starts the code for builder
+	const char *name = NULL, *version = NULL, *release = NULL, *summary = NULL, *url = NULL;
+
+#if RPM_VERSION_CODE < RPM_VERSION(5,0,0)
+#define GET_TAG(t) tag = t; rc = headerGet(h, tag, td, 0);
+#define TAG_VALUE rpmtdGetString(td)
+	s = rpmSpecParse(args.specfile, 0, NULL);
+	Header h = rpmSpecSourceHeader(s);
+	rpmtd td = rpmtdNew();
+	rpmTagVal tag;
+#else
+#define GET_TAG(t) he->tag = (rpmTag)t; he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he)); rc = headerGet(h, he, 0);
+#define TAG_VALUE (char *)he->p.ptr
 	rpmts ts = rpmtsCreate();
 	if (parseSpec(ts, args.specfile, NULL, 0, NULL, NULL, 1, 1, 0) != 0) {
 		return EXIT_FAILURE;
 	}
-  
+
 	s = rpmtsSpec(ts);
 
-	// here starts the code for builder
-	const char *name = NULL, *version = NULL, *release = NULL, *summary = NULL, *url = NULL;
-
-	initSourceHeader(s, NULL);
 	Header h = s->sourceHeader;
+	HE_t he;
+#endif
+	int rc;
 
-#if RPM_VERSION_CODE < RPM_VERSION(5,0,0)
-	if (
-		headerGetEntryMinMemory(h, RPMTAG_NAME, NULL, (void *)&name, NULL) == 0 ||
-		headerGetEntryMinMemory(h, RPMTAG_VERSION, NULL, (void *)&version, NULL) == 0 ||
-		headerGetEntryMinMemory(h, RPMTAG_RELEASE, NULL, (void *)&release, NULL) == 0
-		) {
-		fprintf(stderr, "NVR query failed\n");
+	GET_TAG(RPMTAG_NAME);
+	if (!rc) {
+		fprintf(stderr, "Name (NVR) query failed\n");
 		return EXIT_FAILURE;
 	}
+	name = TAG_VALUE;
 
-#else
-	{
-		HE_t he;
-		int rc;
-
-		he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he));
-		he->tag = (rpmTag) RPMTAG_NAME;
-		rc = headerGet(h, he, 0);
-		if (!rc) {
-			fprintf(stderr, "Name (NVR) query failed\n");
-			return EXIT_FAILURE;
-		}
-		name = (char *)he->p.ptr;
-
-		he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he));
-		he->tag = (rpmTag) RPMTAG_VERSION;
-		rc = headerGet(h, he, 0);
-		if (!rc) {
-			fprintf(stderr, "Version (NVR) query failed\n");
-			return EXIT_FAILURE;
-		}
-		version = (char *)he->p.ptr;
-
-		he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he));
-		he->tag = (rpmTag) RPMTAG_RELEASE;
-		rc = headerGet(h, he, 0);
-		if (!rc) {
-			fprintf(stderr, "Release (NVR) query failed\n");
-			return EXIT_FAILURE;
-		}
-		release = (char *)he->p.ptr;
-
-		he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he));
-		he->tag = (rpmTag) RPMTAG_SUMMARY;
-		rc = headerGet(h, he, 0);
-		if (!rc) {
-			fprintf(stderr, "Summary query failed\n");
-			return EXIT_FAILURE;
-		}
-		summary = (char *)he->p.ptr;
-
-		he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he));
-		he->tag = (rpmTag) RPMTAG_URL;
-		rc = headerGet(h, he, 0);
-		if (rc) {
-			// URL field is not required
-			url = (char *)he->p.ptr;
-		}
+	GET_TAG(RPMTAG_VERSION);
+	if (!rc) {
+		fprintf(stderr, "Version (NVR) query failed\n");
+		return EXIT_FAILURE;
 	}
-#endif
+	version = TAG_VALUE;
+
+	GET_TAG(RPMTAG_RELEASE);
+	if (!rc) {
+		fprintf(stderr, "Release (NVR) query failed\n");
+		return EXIT_FAILURE;
+	}
+	release = TAG_VALUE;
+
+	GET_TAG(RPMTAG_SUMMARY);
+	if (!rc) {
+		fprintf(stderr, "Summary query failed\n");
+		return EXIT_FAILURE;
+	}
+	summary = TAG_VALUE;
+
+	GET_TAG(RPMTAG_URL);
+	if (rc) {
+		// URL field is not required
+		url = TAG_VALUE;
+	}
 
 	printf("h PACKAGE_NAME %s\n", name);
 	printf("h PACKAGE_VERSION %s\n", version);
@@ -368,6 +357,18 @@ Spec s;
 	printf("h PACKAGE_SUMMARY %s\n", summary);
 	printf("h url %s\n", url);
 
+#if RPM_VERSION_CODE < RPM_VERSION(5,0,0)
+	rpmSpecSrcIter si = rpmSpecSrcIterInit(s);
+	rpmSpecSrc ps;
+	while ((ps = rpmSpecSrcIterNext(si)) != NULL) {
+		const char *type = (rpmSpecSrcFlags(ps) & RPMBUILD_ISSOURCE) ? "SOURCE" : "PATCH";
+		printf("s %sURL%d %s\n", type, rpmSpecSrcNum(ps), rpmSpecSrcFilename(ps, 1));
+		if (rpmSpecSrcFlags(ps) & RPMBUILD_ISNO) {
+			printf("s nosource %d\n", rpmSpecSrcNum(ps));
+		}
+	}
+	rpmSpecSrcIterFree(si);
+#else
 	struct Source *ps = s->sources;
 	while (ps) {
 		const char *type = (ps->flags & RPMFILE_SOURCE) ? "SOURCE" : "PATCH";
@@ -377,6 +378,7 @@ Spec s;
 		}
 		ps = ps->next;
 	}
+#endif
 
 	const char *arch = rpmExpand("%{_target_cpu}", NULL);
 	printf("m _target_cpu %s\n", arch);

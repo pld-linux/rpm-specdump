@@ -302,7 +302,7 @@ Spec s;
 	rpmtd td = rpmtdNew();
 	rpmTagVal tag;
 #else
-#define GET_TAG(t) he->tag = (rpmTag)t; he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he)); rc = headerGet(h, he, 0);
+#define GET_TAG(t) he = (HE_s*)memset(alloca(sizeof(*he)), 0, sizeof(*he)); he->tag = (rpmTag)t; rc = headerGet(h, he, 0);
 #define TAG_VALUE (char *)he->p.ptr
 	rpmts ts = rpmtsCreate();
 	if (parseSpec(ts, args.specfile, NULL, 0, NULL, NULL, 1, 1, 0) != 0) {

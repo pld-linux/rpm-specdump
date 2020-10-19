@@ -310,7 +310,7 @@ Spec s;
 	}
 
 	s = rpmtsSpec(ts);
-
+	initSourceHeader(s, NULL);
 	Header h = s->sourceHeader;
 	HE_t he;
 #endif

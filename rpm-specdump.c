@@ -297,7 +297,7 @@ Spec s;
 #if RPM_VERSION_CODE < RPM_VERSION(5,0,0)
 #define GET_TAG(t) tag = t; rc = headerGet(h, tag, td, 0);
 #define TAG_VALUE rpmtdGetString(td)
-	s = rpmSpecParse(args.specfile, 0, NULL);
+	s = rpmSpecParse(args.specfile, RPMSPEC_FORCE, NULL);
 	Header h = rpmSpecSourceHeader(s);
 	rpmtd td = rpmtdNew();
 	rpmTagVal tag;

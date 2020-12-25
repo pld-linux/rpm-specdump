@@ -8,7 +8,7 @@ Group:		Applications/System
 Source0:	%{name}.c
 Source1:	Makefile
 BuildRequires:	rpm-devel
-%requires_eq	rpm-lib
+%requires_ge	rpm-lib
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description

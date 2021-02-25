@@ -259,11 +259,11 @@ setMacros(char const * const *macros, size_t cnt)
 
 int main(int argc, char *argv[])
 {
-struct Arguments args = { 0,0,0,-1,-1, {0,0,0}, 0 };
+	struct Arguments args = { 0,0,0,-1,-1, {0,0,0}, 0 };
 #if RPM_VERSION_CODE < RPM_VERSION(5,0,0)
-rpmSpec s;
+	rpmSpec s;
 #else
-Spec s;
+	Spec s;
 #endif
 
 	addDefine(&args, "patch %{nil}");
@@ -297,7 +297,7 @@ Spec s;
 #if RPM_VERSION_CODE < RPM_VERSION(5,0,0)
 #define GET_TAG(t) tag = t; rc = headerGet(h, tag, td, 0);
 #define TAG_VALUE rpmtdGetString(td)
-	s = rpmSpecParse(args.specfile, RPMSPEC_FORCE, NULL);
+	s = rpmSpecParse(args.specfile, (RPMSPEC_ANYARCH | RPMSPEC_FORCE), NULL);
 	Header h = rpmSpecSourceHeader(s);
 	rpmtd td = rpmtdNew();
 	rpmTagVal tag;

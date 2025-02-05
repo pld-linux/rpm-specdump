@@ -2,7 +2,7 @@ Summary:	Print RPM dump of specfile
 Summary(pl.UTF-8):	Narzędzie wypisujące RPM-owy zrzut pliku spec
 Name:		rpm-specdump
 Version:	0.8
-Release:	2
+Release:	3
 License:	GPL
 Group:		Applications/System
 Source0:	%{name}.c
